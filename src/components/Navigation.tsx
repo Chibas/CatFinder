@@ -6,8 +6,8 @@ const Navigation = () => {
       <h3 className="font-bold">Cat Gifs Search</h3>
 
       <span>
-        <Link to={`${process.env.PUBLIC_URL}/`} className="relative mr-2 hover:bottom-[1px]">Home</Link>
-        <Link to={`${process.env.PUBLIC_URL}/favorites`} className="relative hover:bottom-[1px]">Favorites</Link>
+        <Link to="/" className="relative mr-2 hover:bottom-[1px]">Home</Link>
+        <Link to="/favorites" className="relative hover:bottom-[1px]">Favorites</Link>
       </span>
     </nav>
   )
