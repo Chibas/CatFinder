@@ -3,10 +3,10 @@ import { useDispatch } from "react-redux";
 import { theCatActions } from "../store/thecat/thecat.slice";
 
 const actions = {
-  ...theCatActions
+  ...theCatActions,
 };
 
 export const useActions = () => {
   const dispatch = useDispatch();
-   return bindActionCreators(actions, dispatch);
-}
+  return bindActionCreators(actions, dispatch);
+};
