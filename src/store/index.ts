@@ -6,10 +6,10 @@ import { theCatReducer } from "./thecat/thecat.slice";
 export const store = configureStore({
   reducer: {
     [thecatApi.reducerPath]: thecatApi.reducer,
-    theCat: theCatReducer
+    theCat: theCatReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(thecatApi.middleware)
+    getDefaultMiddleware().concat(thecatApi.middleware),
 });
 
 setupListeners(store.dispatch);
