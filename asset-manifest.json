@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/catfinder/static/css/main.5e024652.css",
+    "main.js": "/catfinder/static/js/main.10a669a8.js",
+    "index.html": "/catfinder/index.html",
+    "main.5e024652.css.map": "/catfinder/static/css/main.5e024652.css.map",
+    "main.10a669a8.js.map": "/catfinder/static/js/main.10a669a8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5e024652.css",
+    "static/js/main.10a669a8.js"
+  ]
+}
