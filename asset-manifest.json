@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/CatFinder/static/css/main.5e024652.css",
-    "main.js": "/CatFinder/static/js/main.5b953b4f.js",
+    "main.js": "/CatFinder/static/js/main.1b5c26d6.js",
     "index.html": "/CatFinder/index.html",
     "main.5e024652.css.map": "/CatFinder/static/css/main.5e024652.css.map",
-    "main.5b953b4f.js.map": "/CatFinder/static/js/main.5b953b4f.js.map"
+    "main.1b5c26d6.js.map": "/CatFinder/static/js/main.1b5c26d6.js.map"
   },
   "entrypoints": [
     "static/css/main.5e024652.css",
-    "static/js/main.5b953b4f.js"
+    "static/js/main.1b5c26d6.js"
   ]
 }
