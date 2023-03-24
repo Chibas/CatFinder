@@ -23,4 +23,4 @@ TBD
 
 ## Deploy
 
-TBD
+Auto deployes via netlify after merge to master. Configuration via netlify service or deploy.toml
