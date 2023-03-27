@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useLazySearchImagesQuery } from "../store/thecat/thecat.api";
 import CatCard from "../components/CatCard";
 import BreedSelector from "../components/BreedSelector";
 import { useAppSelector } from "../hooks/redux";
 import { useActions } from "../hooks/actions";
+import { CatImage } from "../models/models";
 
 const limit = 10;
 
@@ -13,8 +14,20 @@ const HomePage = () => {
   const { setImages, setPage } = useActions();
   const [
     fetchImages,
-    { isLoading: isImagesLoading, isError: isImagesError, data: images },
+    { isLoading: isImagesLoading, isFetching: isImageFetching, isError: isImagesError, data: images },
   ] = useLazySearchImagesQuery();
+
+  const intObserver = useRef<IntersectionObserver>();
+  const lastImageRef = useCallback((image: HTMLDivElement) => {
+    if (isImagesLoading || isImageFetching) return;
+    if (intObserver.current) intObserver.current.disconnect();
+    intObserver.current = new IntersectionObserver(images => {
+      if (images[0].isIntersecting) {
+        setPage(selectedPage + 1);
+      }
+    });
+    if (image) intObserver.current.observe(image)
+  }, [isImagesLoading, isImageFetching, selectedPage, setPage]);
 
   useEffect(() => {
     fetchImages({ limit, page: selectedPage, breed_ids: selectedBreedsIds });
@@ -24,30 +37,27 @@ const HomePage = () => {
     setImages(images);
   }, [images, setImages]);
 
-  const handleLoadMoreClick = () => {
-    setPage(selectedPage + 1);
-  };
-
   return (
     <div className="flex flex-col items-center mx-auto py-10 w-screen">
       <BreedSelector />
 
       <div className="container flex flex-wrap justify-center gap-6 pt-10 after:content-[''] grow-[999]">
-        {isImagesLoading && <p className="text-center">Loading images...</p>}
         {isImagesError && (
           <p className="text-center text-red-600">Fetching images failed</p>
         )}
-        {images?.map((image, i) => (
-          <CatCard key={image.id + i} catImage={image} />
-        ))}
+        {images?.map((image: CatImage, i) => {
+          if (i === images.length - 1) {
+            return <CatCard key={image.id + i} ref={lastImageRef} catImage={image} />
+          }
+          return <CatCard key={image.id + i} catImage={image} />
+        })}
       </div>
-
-      <button
-        className="my-10 bg-blue-500 py-2 px-4 text-white rounded hover:bg-blue-700"
-        onClick={handleLoadMoreClick}
-      >
-        Load more
-      </button>
+      {(!isImagesLoading || !isImageFetching) && (
+        <div className="flex items-center justify-center mt-10">
+          <img className="mr-2 fill-blue-500" src="/loading.png" alt="loading" />
+          Loading images...
+        </div>
+      )}
     </div>
   );
 };

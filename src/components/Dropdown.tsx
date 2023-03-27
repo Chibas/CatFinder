@@ -54,7 +54,7 @@ export const Dropdown = <T extends Option>({
     },
     [selectedIds]
   );
-    console.log(data)
+  
   const handleSetDropdown =
     (value: boolean) =>
     (e: React.MouseEvent<HTMLElement> | React.FocusEvent) => {
