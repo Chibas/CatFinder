@@ -14,20 +14,28 @@ const HomePage = () => {
   const { setImages, setPage } = useActions();
   const [
     fetchImages,
-    { isLoading: isImagesLoading, isFetching: isImageFetching, isError: isImagesError, data: images },
+    {
+      isLoading: isImagesLoading,
+      isFetching: isImageFetching,
+      isError: isImagesError,
+      data: images,
+    },
   ] = useLazySearchImagesQuery();
 
   const intObserver = useRef<IntersectionObserver>();
-  const lastImageRef = useCallback((image: HTMLDivElement) => {
-    if (isImagesLoading || isImageFetching) return;
-    if (intObserver.current) intObserver.current.disconnect();
-    intObserver.current = new IntersectionObserver(images => {
-      if (images[0].isIntersecting) {
-        setPage(selectedPage + 1);
-      }
-    });
-    if (image) intObserver.current.observe(image)
-  }, [isImagesLoading, isImageFetching, selectedPage, setPage]);
+  const lastImageRef = useCallback(
+    (image: HTMLDivElement) => {
+      if (isImagesLoading || isImageFetching) return;
+      if (intObserver.current) intObserver.current.disconnect();
+      intObserver.current = new IntersectionObserver((images) => {
+        if (images[0].isIntersecting) {
+          setPage(selectedPage + 1);
+        }
+      });
+      if (image) intObserver.current.observe(image);
+    },
+    [isImagesLoading, isImageFetching, selectedPage, setPage]
+  );
 
   useEffect(() => {
     fetchImages({ limit, page: selectedPage, breed_ids: selectedBreedsIds });
@@ -47,17 +55,24 @@ const HomePage = () => {
         )}
         {images?.map((image: CatImage, i) => {
           if (i === images.length - 1) {
-            return <CatCard key={image.id + i} ref={lastImageRef} catImage={image} />
+            return (
+              <CatCard key={image.id + i} ref={lastImageRef} catImage={image} />
+            );
           }
-          return <CatCard key={image.id + i} catImage={image} />
+          return <CatCard key={image.id + i} catImage={image} />;
         })}
+        {(isImagesLoading || isImageFetching) && (
+          <div className="flex items-center justify-center mt-10">
+            <img
+              className="animate-spin mr-2"
+              src="/loading.png"
+              alt="loading"
+            />
+            Loading images...
+          </div>
+        )}
+        {!isImagesLoading && !images?.length && <p>No images found</p>}
       </div>
-      {(!isImagesLoading || !isImageFetching) && (
-        <div className="flex items-center justify-center mt-10">
-          <img className="mr-2 fill-blue-500" src="/loading.png" alt="loading" />
-          Loading images...
-        </div>
-      )}
     </div>
   );
 };
