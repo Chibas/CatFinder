@@ -54,7 +54,7 @@ const HomePage = () => {
       </div>
       {(!isImagesLoading || !isImageFetching) && (
         <div className="flex items-center justify-center mt-10">
-          <img className="mr-2 fill-blue-500" src="/loading.png" alt="loading" />
+          <img className="mr-2 animate-spin" src="/loading.png" alt="loading" />
           Loading images...
         </div>
       )}
