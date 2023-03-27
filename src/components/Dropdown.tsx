@@ -54,7 +54,7 @@ export const Dropdown = <T extends Option>({
     },
     [selectedIds]
   );
-  
+
   const handleSetDropdown =
     (value: boolean) =>
     (e: React.MouseEvent<HTMLElement> | React.FocusEvent) => {
@@ -98,10 +98,12 @@ export const Dropdown = <T extends Option>({
       ))}
 
       {showDropdown && (
-        <ul className="absolute list-none top-[42px] left-0 right-0 max-h-[200px] overflow-y-scroll shadow-md bg-white">
-          {loading && <p className="text-center">Loading breeds list...</p>}
+        <ul className="absolute list-none top-[42px] left-0 right-0 max-h-[200px] overflow-y-scroll shadow-md bg-white z-10">
+          {loading && (
+            <p className="text-center py-2 px-4">Loading breeds list...</p>
+          )}
           {error && (
-            <p className="text-center text-red-600">
+            <p className="text-center py-2 px-4 text-red-600">
               Unknown error occured while loading
             </p>
           )}
