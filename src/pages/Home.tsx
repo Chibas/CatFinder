@@ -11,6 +11,7 @@ const limit = 10;
 const HomePage = () => {
   const selectedBreedsIds = useAppSelector((state) => state.theCat.breedIds);
   const selectedPage = useAppSelector((state) => state.theCat.page);
+
   const { setImages, setPage } = useActions();
   const [
     fetchImages,
@@ -62,7 +63,7 @@ const HomePage = () => {
           return <CatCard key={image.id + i} catImage={image} />;
         })}
         {(isImagesLoading || isImageFetching) && (
-          <div className="flex items-center justify-center mt-10">
+          <div className="flex items-center justify-center mt-10 w-full">
             <img
               className="animate-spin mr-2"
               src="/loading.png"
