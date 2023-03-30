@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { useLazySearchImagesQuery } from "../store/thecat/thecat.api";
+import {
+  useLazySearchImagesQuery,
+  useVoteForImageMutation,
+  useFavoriteImageMutation,
+  useUnfavoriteImageMutation,
+  VoteDTO,
+} from "../store/thecat/thecat.api";
 import CatCard from "../components/CatCard";
 import BreedSelector from "../components/BreedSelector";
 import { useAppSelector } from "../hooks/redux";
@@ -11,8 +17,9 @@ const limit = 10;
 const HomePage = () => {
   const selectedBreedsIds = useAppSelector((state) => state.theCat.breedIds);
   const selectedPage = useAppSelector((state) => state.theCat.page);
+  const currentUserId = useAppSelector((state) => state.auth.user?.id!);
 
-  const { setImages, setPage } = useActions();
+  const { setPage } = useActions();
   const [
     fetchImages,
     {
@@ -22,6 +29,11 @@ const HomePage = () => {
       data: images,
     },
   ] = useLazySearchImagesQuery();
+  const [voteForImage, { isLoading: isVoting }] = useVoteForImageMutation();
+  const [favoriteImage, { isLoading: isFavoriting }] =
+    useFavoriteImageMutation();
+  const [unFavoriteImage, { isLoading: isUnfavoriting }] =
+    useUnfavoriteImageMutation();
 
   const intObserver = useRef<IntersectionObserver>();
   const lastImageRef = useCallback(
@@ -39,12 +51,40 @@ const HomePage = () => {
   );
 
   useEffect(() => {
-    fetchImages({ limit, page: selectedPage, breed_ids: selectedBreedsIds });
+    fetchImages({
+      limit,
+      page: selectedPage,
+      breed_ids: selectedBreedsIds,
+      sub_id: currentUserId,
+    });
   }, [selectedBreedsIds, fetchImages, selectedPage]);
 
-  useEffect(() => {
-    setImages(images);
-  }, [images, setImages]);
+  const handleVote = useCallback(
+    (value: boolean, image_id: string) => {
+      const data: VoteDTO = {
+        value,
+        image_id,
+        sub_id: currentUserId,
+      };
+      voteForImage(data);
+    },
+    [currentUserId, voteForImage]
+  );
+
+  const handleFavorite = useCallback(
+    (alreadyFavorited: boolean, id: string) => {
+      if (!alreadyFavorited) {
+        const data: Partial<VoteDTO> = {
+          image_id: id,
+          sub_id: currentUserId,
+        };
+        favoriteImage(data);
+      } else {
+        unFavoriteImage(id);
+      }
+    },
+    [currentUserId, favoriteImage, unFavoriteImage]
+  );
 
   return (
     <div className="flex flex-col items-center mx-auto py-10 w-screen">
@@ -55,18 +95,22 @@ const HomePage = () => {
           <p className="text-center text-red-600">Fetching images failed</p>
         )}
         {images?.map((image: CatImage, i) => {
-          if (i === images.length - 1) {
-            return (
-              <CatCard key={image.id + i} ref={lastImageRef} catImage={image} />
-            );
-          }
-          return <CatCard key={image.id + i} catImage={image} />;
+          return (
+            <CatCard
+              key={image.id + i}
+              ref={i === images.length - 1 ? lastImageRef : undefined}
+              catImage={image}
+              handleVote={handleVote}
+              handleFavorite={handleFavorite}
+              loading={isVoting || isFavoriting || isUnfavoriting}
+            />
+          );
         })}
         {(isImagesLoading || isImageFetching) && (
           <div className="flex items-center justify-center mt-10 w-full">
             <img
-              className="animate-spin mr-2"
-              src="/loading.png"
+              className="animate-spin mr-2 w-[36px] h-[36px]"
+              src="/loading.svg"
               alt="loading"
             />
             Loading images...
