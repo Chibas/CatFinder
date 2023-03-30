@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Breed, CatImage, Vote } from "../../models/models";
+import { BasicImage, Breed, CatImage, Favourite } from "../../models/models";
 
 type SearchImagesQueryParams = {
   limit?: number;
@@ -15,6 +15,11 @@ export interface VoteDTO {
   value: boolean;
 }
 
+export interface PostResponse {
+  id: number;
+  message: string;
+}
+
 export const thecatApi = createApi({
   reducerPath: "thecat/api",
   baseQuery: fetchBaseQuery({
@@ -27,17 +32,18 @@ export const thecatApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["ImagesList"],
+  tagTypes: ["ImagesList", "FavoritesList"],
   refetchOnFocus: true,
   endpoints: (build) => ({
     searchImages: build.query<CatImage[], SearchImagesQueryParams>({
-      query: ({ limit, page, breed_ids, sub_id }) => ({
+      query: ({ limit, page, breed_ids, sub_id, order = "DESC" }) => ({
         url: "images/search",
         params: {
           limit,
           page,
           breed_ids,
           sub_id,
+          order,
         },
       }),
       providesTags: (result) => ["ImagesList"],
@@ -65,16 +71,16 @@ export const thecatApi = createApi({
         url: "votes",
       }),
     }),
-    voteForImage: build.mutation<void, VoteDTO>({
+    voteForImage: build.mutation<PostResponse, VoteDTO>({
       query: (voteData: VoteDTO) => ({
         url: "votes",
         method: "POST",
         body: voteData,
       }),
-      // TODO: Can't invalidate list properly because API always returns random set of pictures
-      // invalidatesTags: ['ImagesList']
+      // TODO: Can't invalidate list if ORDER is set to RANDOM
+      invalidatesTags: ["ImagesList"],
     }),
-    getFavourites: build.query<CatImage[], SearchImagesQueryParams>({
+    getFavourites: build.query<BasicImage[], SearchImagesQueryParams>({
       query: ({ limit, page, sub_id }) => ({
         url: "favourites",
         params: {
@@ -83,21 +89,29 @@ export const thecatApi = createApi({
           sub_id,
         },
       }),
+      providesTags: (result) => ["FavoritesList"],
+      transformResponse: (response: Favourite[]) => {
+        return response.map((item: any) => ({
+          id: item.image_id,
+          url: item.image.url,
+          favourite: { id: item.id },
+        }));
+      },
     }),
-    favoriteImage: build.mutation<void, Partial<VoteDTO>>({
+    favouriteImage: build.mutation<PostResponse, Partial<VoteDTO>>({
       query: (favouriteData: Partial<VoteDTO>) => ({
         url: "favourites",
         method: "POST",
         body: favouriteData,
       }),
-      // invalidatesTags: ['ImagesList']
+      invalidatesTags: ["ImagesList", "FavoritesList"],
     }),
-    unfavoriteImage: build.mutation<void, number | string>({
+    unfavouriteImage: build.mutation<PostResponse, number | string>({
       query: (id: number | string) => ({
         url: `favourites/${id}`,
         method: "DELETE",
       }),
-      // invalidatesTags: ['ImagesList']
+      invalidatesTags: ["ImagesList", "FavoritesList"],
     }),
   }),
 });
@@ -108,7 +122,7 @@ export const {
   useGetBreedsQuery,
   useGetVotesQuery,
   useVoteForImageMutation,
-  useFavoriteImageMutation,
-  useUnfavoriteImageMutation,
+  useFavouriteImageMutation,
+  useUnfavouriteImageMutation,
   useGetFavouritesQuery,
 } = thecatApi;

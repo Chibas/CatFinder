@@ -5,8 +5,9 @@ import LoadingIndicator from "./LoadingIndicator";
 type CatCardProps = {
   catImage: CatImage;
   handleVote: Function;
-  handleFavorite: Function;
+  handleFavourite: Function;
   loading: boolean;
+  disableVoting?: boolean;
 };
 
 type ActionItemProps = {
@@ -32,11 +33,14 @@ const ActionItem = ({ imageName, action, active = false }: ActionItemProps) => {
 };
 
 const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
-  ({ catImage, handleVote, handleFavorite, loading }, ref) => {
+  (
+    { catImage, handleVote, handleFavourite, loading, disableVoting = false },
+    ref
+  ) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [isUpvoated, setIsUpvoated] = useState(false);
     const [isDownvoated, setIsDownvoated] = useState(false);
-    const [isFavorited, setIsFavorited] = useState(false);
+    const [isFavourited, setIsFavourited] = useState(false);
 
     const localRef = useRef<HTMLDivElement>(null);
     const cardRef = ref || localRef;
@@ -55,11 +59,12 @@ const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
       handleVote(-1, catImage.id);
     };
 
-    const favoriteImage = () => {
+    const favouriteImage = () => {
       if (loading) return;
-      setIsFavorited(!isFavorited);
-      !loading &&
-        handleFavorite(catImage.hasOwnProperty("favourite"), catImage.id);
+      setIsFavourited(!isFavourited);
+      !catImage.hasOwnProperty("favourite")
+        ? handleFavourite(false, catImage.id)
+        : handleFavourite(true, catImage.favourite!.id);
     };
 
     useEffect(() => {
@@ -67,7 +72,7 @@ const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
         (catImage.vote?.value! > 0
           ? setIsUpvoated(true)
           : setIsDownvoated(true));
-      catImage.hasOwnProperty("favourite") && setIsFavorited(true);
+      catImage.hasOwnProperty("favourite") && setIsFavourited(true);
     }, [catImage]);
 
     return (
@@ -88,22 +93,24 @@ const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
           onLoad={() => setImageLoaded(true)}
         />
         <div className="absolute flex justify-between items-center w-full h-[60px] bg-slate-800/50 bottom-0 px-3">
-          <div className="votesWrapped">
-            <ActionItem
-              imageName="upvote.svg"
-              action={upvoteImage}
-              active={isUpvoated}
-            />
-            <ActionItem
-              imageName="downvote.svg"
-              action={downvoteImage}
-              active={isDownvoated}
-            />
-          </div>
+          {!disableVoting && (
+            <div className="votesWrapped">
+              <ActionItem
+                imageName="upvote.svg"
+                action={upvoteImage}
+                active={isUpvoated}
+              />
+              <ActionItem
+                imageName="downvote.svg"
+                action={downvoteImage}
+                active={isDownvoated}
+              />
+            </div>
+          )}
           <ActionItem
             imageName="heart.svg"
-            action={favoriteImage}
-            active={isFavorited}
+            action={favouriteImage}
+            active={isFavourited}
           />
         </div>
       </div>

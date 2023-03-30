@@ -15,11 +15,11 @@ const Navigation = ({ isAuthenticated, activeUser }: NavigationProps) => {
         <Link to="/" className="relative mr-2 hover:bottom-[1px]">
           Home
         </Link>
-        <Link to="/favorites" className="relative hover:bottom-[1px]">
-          Favorites
+        <Link to="/favourites" className="relative hover:bottom-[1px]">
+          Favourites
         </Link>
         {!isAuthenticated && (
-          <Link to="/favorites" className="relative hover:bottom-[1px]">
+          <Link to="/" className="relative hover:bottom-[1px]">
             {"=>"}Login
           </Link>
         )}
