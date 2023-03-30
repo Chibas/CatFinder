@@ -1,9 +1,23 @@
-export interface CatImage {
+export interface BasicImage {
   id: string;
-  width: number;
-  height: number;
   url: string;
-  breeds: Breed;
+}
+
+export interface CatImage extends BasicImage {
+  width?: number;
+  height?: number;
+  breeds?: Breed;
+  vote?: Partial<Vote>;
+  favourite?: Partial<Vote>;
+}
+
+export interface Favourite {
+  created_at: string;
+  id: number;
+  image: BasicImage;
+  image_id: string;
+  sub_id: string;
+  user_id: string;
 }
 
 export interface Breed {
@@ -16,6 +30,16 @@ export interface Breed {
   country_code: string;
   life_span: string;
   wikipedia_url: string;
+}
+
+export interface Vote {
+  country_code: string;
+  created_at: string;
+  id: number;
+  image: Partial<CatImage>;
+  image_id: string;
+  sub_id: string;
+  value: number;
 }
 
 export interface Weight {
