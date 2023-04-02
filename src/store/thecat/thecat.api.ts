@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BasicImage, Breed, CatImage, Favourite } from "../../models/models";
+import { BasicImage, Breed, CatImage, Vote } from "../../models/models";
 
 type SearchImagesQueryParams = {
   limit?: number;
@@ -32,7 +32,7 @@ export const thecatApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["ImagesList", "FavoritesList"],
+  tagTypes: ["ImagesList", "FavoritesList", "VotesList"],
   refetchOnFocus: true,
   endpoints: (build) => ({
     searchImages: build.query<CatImage[], SearchImagesQueryParams>({
@@ -69,7 +69,33 @@ export const thecatApi = createApi({
     getVotes: build.query<CatImage[], SearchImagesQueryParams>({
       query: ({ limit, page, sub_id }) => ({
         url: "votes",
+        params: {
+          limit,
+          page,
+          sub_id,
+        },
       }),
+      providesTags: (result) => ["VotesList"],
+      serializeQueryArgs: ({ endpointName }) => {
+        return endpointName;
+      },
+      merge: (currentCacheData, responseData, { arg }) => {
+        if (arg?.page! > 0) {
+          currentCacheData.push(...responseData);
+          return currentCacheData;
+        }
+        return responseData;
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg !== previousArg;
+      },
+      transformResponse: (response: Vote[]) => {
+        return response.map((item: any) => ({
+          id: item.image_id,
+          url: item.image.url,
+          vote: { value: item.value },
+        }));
+      },
     }),
     voteForImage: build.mutation<PostResponse, VoteDTO>({
       query: (voteData: VoteDTO) => ({
@@ -77,8 +103,7 @@ export const thecatApi = createApi({
         method: "POST",
         body: voteData,
       }),
-      // TODO: Can't invalidate list if ORDER is set to RANDOM
-      invalidatesTags: ["ImagesList"],
+      invalidatesTags: ["ImagesList", "VotesList"],
     }),
     getFavourites: build.query<BasicImage[], SearchImagesQueryParams>({
       query: ({ limit, page, sub_id }) => ({
@@ -90,7 +115,7 @@ export const thecatApi = createApi({
         },
       }),
       providesTags: (result) => ["FavoritesList"],
-      transformResponse: (response: Favourite[]) => {
+      transformResponse: (response: BasicImage[], meta) => {
         return response.map((item: any) => ({
           id: item.image_id,
           url: item.image.url,

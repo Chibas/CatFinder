@@ -9,14 +9,19 @@ type NavigationProps = {
 const Navigation = ({ isAuthenticated, activeUser }: NavigationProps) => {
   return (
     <nav className="flex justify-between items-center h-[50px] px-5 shadow-md bg-blue-500 text-white">
-      <h3 className="font-bold">Cat Gifs Search</h3>
+      <Link to="/">
+        <h3 className="font-bold">Cat Gifs Search</h3>
+      </Link>
 
       <span>
         <Link to="/" className="relative mr-2 hover:bottom-[1px]">
           Home
         </Link>
-        <Link to="/favourites" className="relative hover:bottom-[1px]">
+        <Link to="/favourites" className="relative mr-2 hover:bottom-[1px]">
           Favourites
+        </Link>
+        <Link to="/history" className="relative mr-2 hover:bottom-[1px]">
+          History
         </Link>
         {!isAuthenticated && (
           <Link to="/" className="relative hover:bottom-[1px]">

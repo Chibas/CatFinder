@@ -1,12 +1,17 @@
+import { useState } from "react";
 import ImagesList from "../components/ImagesList";
+import { useDebounce } from "../hooks/debounce";
 import { useAppSelector } from "../hooks/redux";
-import { useGetFavouritesQuery } from "../store/thecat/thecat.api";
+import { useGetVotesQuery } from "../store/thecat/thecat.api";
 
-const FavouritesPage = () => {
+const VotingHistory = () => {
   const currentUserId = useAppSelector((state) => state.auth.user?.id!);
-  const { data, isLoading, isFetching, isError } = useGetFavouritesQuery({
+  const [selectedPage, setSelectedPage] = useState(0);
+  const { data, isLoading, isFetching, isError } = useGetVotesQuery({
     sub_id: currentUserId,
+    page: selectedPage,
   });
+  const debouncedPage = useDebounce(selectedPage);
 
   return (
     <div className="flex flex-col items-center mx-auto py-10 w-screen">
@@ -16,10 +21,11 @@ const FavouritesPage = () => {
         isFetching={isFetching}
         isError={isError}
         currentUserId={currentUserId}
-        disableVoting={true}
+        selectedPage={debouncedPage}
+        setPage={setSelectedPage}
       />
     </div>
   );
 };
 
-export default FavouritesPage;
+export default VotingHistory;
