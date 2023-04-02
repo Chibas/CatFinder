@@ -1,4 +1,8 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  FetchBaseQueryMeta,
+} from "@reduxjs/toolkit/query/react";
 import { BasicImage, Breed, CatImage, Vote } from "../../models/models";
 
 type SearchImagesQueryParams = {
@@ -20,6 +24,20 @@ export interface PostResponse {
   message: string;
 }
 
+export interface DataWithPagination<T> {
+  items: T[];
+  totalPages: number;
+}
+
+const calculateTotalPages = (meta?: FetchBaseQueryMeta) => {
+  if (!meta) return 0;
+  const paginationCount = meta.response?.headers.get("pagination-count");
+  const paginationLimit = meta.response?.headers.get("pagination-limit");
+  return paginationCount && paginationLimit
+    ? Math.ceil(parseInt(paginationCount) / parseInt(paginationLimit))
+    : 0;
+};
+
 export const thecatApi = createApi({
   reducerPath: "thecat/api",
   baseQuery: fetchBaseQuery({
@@ -35,7 +53,10 @@ export const thecatApi = createApi({
   tagTypes: ["ImagesList", "FavoritesList", "VotesList"],
   refetchOnFocus: true,
   endpoints: (build) => ({
-    searchImages: build.query<CatImage[], SearchImagesQueryParams>({
+    searchImages: build.query<
+      DataWithPagination<CatImage>,
+      SearchImagesQueryParams
+    >({
       query: ({ limit, page, breed_ids, sub_id, order = "DESC" }) => ({
         url: "images/search",
         params: {
@@ -51,8 +72,8 @@ export const thecatApi = createApi({
         return endpointName;
       },
       merge: (currentCacheData, responseData, { arg }) => {
-        if (arg?.page! > 0) {
-          currentCacheData.push(...responseData);
+        if (arg?.page! > 0 && arg?.breed_ids!.length > 0) {
+          currentCacheData.items.push(...responseData.items);
           return currentCacheData;
         }
         return responseData;
@@ -60,13 +81,19 @@ export const thecatApi = createApi({
       forceRefetch({ currentArg, previousArg }) {
         return currentArg !== previousArg;
       },
+      transformResponse: (response: CatImage[], meta) => {
+        return { items: response, totalPages: calculateTotalPages(meta) };
+      },
     }),
     getBreeds: build.query<Breed[], void>({
       query: () => ({
         url: "breeds",
       }),
     }),
-    getVotes: build.query<CatImage[], SearchImagesQueryParams>({
+    getVotes: build.query<
+      DataWithPagination<CatImage>,
+      SearchImagesQueryParams
+    >({
       query: ({ limit, page, sub_id }) => ({
         url: "votes",
         params: {
@@ -81,7 +108,7 @@ export const thecatApi = createApi({
       },
       merge: (currentCacheData, responseData, { arg }) => {
         if (arg?.page! > 0) {
-          currentCacheData.push(...responseData);
+          currentCacheData.items.push(...responseData.items);
           return currentCacheData;
         }
         return responseData;
@@ -90,11 +117,13 @@ export const thecatApi = createApi({
         return currentArg !== previousArg;
       },
       transformResponse: (response: Vote[]) => {
-        return response.map((item: any) => ({
+        const items = response.map((item: any) => ({
+          ...item,
           id: item.image_id,
           url: item.image.url,
           vote: { value: item.value },
         }));
+        return { items, totalPages: 0 };
       },
     }),
     voteForImage: build.mutation<PostResponse, VoteDTO>({
