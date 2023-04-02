@@ -1,35 +1,48 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSearchImagesQuery } from "../store/thecat/thecat.api";
 import BreedSelector from "../components/BreedSelector";
 import { useAppSelector } from "../hooks/redux";
 import ImagesList from "../components/ImagesList";
-import { useDebounce } from "../hooks/debounce";
+import usePagination from "../hooks/pagination";
 
 const limit = 10;
 
 const HomePage = () => {
-  const selectedBreedsIds = useAppSelector((state) => state.theCat.breedIds);
-  const [selectedPage, setSelectedPage] = useState(0);
   const currentUserId = useAppSelector((state) => state.auth.user?.id!);
-  const debouncedPage = useDebounce(selectedPage);
+  const { selectedPage, selectPage, selectNextPage, setTotalPages } =
+    usePagination();
+  const [selectedBreedIds, setSelectedBreedIds] = useState<string[]>([]);
   const { isLoading, isFetching, isError, data } = useSearchImagesQuery({
     limit,
     page: selectedPage,
-    breed_ids: selectedBreedsIds,
+    breed_ids: selectedBreedIds,
     sub_id: currentUserId,
   });
 
+  useEffect(() => {
+    if (data?.totalPages) {
+      setTotalPages(data?.totalPages);
+    }
+  }, [data, setTotalPages]);
+
+  const handleBreedChange = useCallback(
+    (ids: string[] = []) => {
+      selectPage(0);
+      setSelectedBreedIds(ids);
+    },
+    [selectPage, setSelectedBreedIds]
+  );
+
   return (
     <div className="flex flex-col items-center mx-auto py-10 w-screen">
-      <BreedSelector handleSelect={setSelectedPage} />
+      <BreedSelector handleSelect={handleBreedChange} />
       <ImagesList
-        data={data}
+        data={data?.items}
         isLoading={isLoading}
         isFetching={isFetching}
         isError={isError}
         currentUserId={currentUserId}
-        selectedPage={debouncedPage}
-        setPage={setSelectedPage}
+        setNextPage={selectNextPage}
       />
     </div>
   );
