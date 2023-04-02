@@ -49,14 +49,14 @@ const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
       if (loading) return;
       setIsUpvoated(!isUpvoated);
       isDownvoated && setIsDownvoated(isUpvoated);
-      handleVote(1, catImage.id);
+      handleVote(isUpvoated ? 0 : 1, catImage.id);
     };
 
     const downvoteImage = () => {
       if (loading) return;
       setIsDownvoated(!isDownvoated);
       isUpvoated && setIsUpvoated(isDownvoated);
-      handleVote(-1, catImage.id);
+      handleVote(isDownvoated ? 0 : -1, catImage.id);
     };
 
     const favouriteImage = () => {
@@ -66,7 +66,6 @@ const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
         ? handleFavourite(false, catImage.id)
         : handleFavourite(true, catImage.favourite!.id);
     };
-
     useEffect(() => {
       catImage.hasOwnProperty("vote") &&
         (catImage.vote?.value! > 0

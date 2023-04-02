@@ -14,8 +14,8 @@ type ImagesListProps = {
   isFetching: boolean;
   isError: boolean;
   currentUserId: string;
-  setPage: Function;
-  selectedPage: number;
+  setPage?: Function;
+  selectedPage?: number;
   disableVoting?: boolean;
 };
 
@@ -26,7 +26,7 @@ const ImagesList = ({
   isError,
   currentUserId,
   setPage,
-  selectedPage,
+  selectedPage = 0,
   disableVoting = false,
 }: ImagesListProps) => {
   const [voteForImage, { isLoading: isVoting }] = useVoteForImageMutation();
@@ -38,7 +38,7 @@ const ImagesList = ({
   const intObserver = useRef<IntersectionObserver>();
   const lastImageRef = useCallback(
     (image: HTMLDivElement) => {
-      if (isLoading || isFetching) return;
+      if (isLoading || isFetching || !setPage) return;
       if (intObserver.current) intObserver.current.disconnect();
       intObserver.current = new IntersectionObserver((images) => {
         if (images[0].isIntersecting) {

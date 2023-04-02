@@ -20,6 +20,17 @@ export interface Favourite {
   user_id: string;
 }
 
+export interface Vote {
+  created_at: string;
+  id: number;
+  image: BasicImage;
+  image_id: string;
+  sub_id: string;
+  user_id: string;
+  country_code: string;
+  value: number;
+}
+
 export interface Breed {
   weight: Weight;
   id: string;
@@ -30,16 +41,6 @@ export interface Breed {
   country_code: string;
   life_span: string;
   wikipedia_url: string;
-}
-
-export interface Vote {
-  country_code: string;
-  created_at: string;
-  id: number;
-  image: Partial<CatImage>;
-  image_id: string;
-  sub_id: string;
-  value: number;
 }
 
 export interface Weight {
