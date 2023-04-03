@@ -72,7 +72,7 @@ export const thecatApi = createApi({
         return endpointName;
       },
       merge: (currentCacheData, responseData, { arg }) => {
-        if (arg?.page! > 0 && arg?.breed_ids!.length > 0) {
+        if (arg?.page! > 0) {
           currentCacheData.items.push(...responseData.items);
           return currentCacheData;
         }
