@@ -50,6 +50,7 @@ export const Dropdown = <T extends Option>({
         return true;
       });
       if (!includesId) IdsList.push(id);
+      setSearch("");
       setSelectedIds(IdsList);
     },
     [selectedIds]
