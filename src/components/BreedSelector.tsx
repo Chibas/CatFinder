@@ -3,7 +3,7 @@ import { useGetBreedsQuery } from "../store/thecat/thecat.api";
 import Dropdown from "./Dropdown";
 
 type BreedSelectorProps = {
-  handleSelect: Function;
+  handleSelect(ids: string[]): void;
 };
 
 const BreedSelector = ({ handleSelect }: BreedSelectorProps) => {

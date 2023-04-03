@@ -4,16 +4,16 @@ import LoadingIndicator from "./LoadingIndicator";
 
 type CatCardProps = {
   catImage: CatImage;
-  handleVote: Function;
-  handleFavourite: Function;
+  handleFavourite(alreadyFavourited: boolean, id: string | number): void;
   loading: boolean;
   disableVoting?: boolean;
+  handleVote(vote: number, id: string): void;
 };
 
 type ActionItemProps = {
   imageName: string;
-  action: Function;
   active?: boolean;
+  action(): void;
 };
 
 const ActionItem = ({ imageName, action, active = false }: ActionItemProps) => {
@@ -64,7 +64,7 @@ const CatCard = forwardRef<HTMLDivElement, CatCardProps>(
       setIsFavourited(!isFavourited);
       !catImage.hasOwnProperty("favourite")
         ? handleFavourite(false, catImage.id)
-        : handleFavourite(true, catImage.favourite!.id);
+        : handleFavourite(true, catImage.favourite!.id!);
     };
     useEffect(() => {
       catImage.hasOwnProperty("vote") &&

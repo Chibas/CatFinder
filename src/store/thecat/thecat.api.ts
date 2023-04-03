@@ -16,7 +16,7 @@ type SearchImagesQueryParams = {
 export interface VoteDTO {
   image_id: string;
   sub_id: string;
-  value: boolean;
+  value: number;
 }
 
 export interface PostResponse {

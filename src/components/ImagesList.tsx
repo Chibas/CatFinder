@@ -14,8 +14,8 @@ type ImagesListProps = {
   isFetching: boolean;
   isError: boolean;
   currentUserId: string;
-  setNextPage?: Function;
   disableVoting?: boolean;
+  setNextPage?(): void;
 };
 
 const ImagesList = ({
@@ -38,9 +38,11 @@ const ImagesList = ({
     (image: HTMLDivElement) => {
       if (isLoading || isFetching || !setNextPage) return;
       if (intObserver.current) intObserver.current.disconnect();
+
       intObserver.current = new IntersectionObserver((images) => {
-        if (images[0].isIntersecting) {
+        if (images[0].isIntersecting && images[0].intersectionRatio > 0) {
           setNextPage();
+          intObserver.current?.unobserve(image);
         }
       });
       if (image) intObserver.current.observe(image);
@@ -49,7 +51,7 @@ const ImagesList = ({
   );
 
   const handleVote = useCallback(
-    (value: boolean, image_id: string) => {
+    (value: number, image_id: string) => {
       const data: VoteDTO = {
         value,
         image_id,
