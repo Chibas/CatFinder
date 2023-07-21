@@ -14,7 +14,7 @@ export const Dropdown = <T extends Option>({
   data: T[] | undefined;
   loading: boolean;
   error: boolean;
-  handleSelectedChange: Function;
+  handleSelectedChange(selectedIds: string[]): void;
 }) => {
   const [search, setSearch] = useState<string>("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -50,6 +50,7 @@ export const Dropdown = <T extends Option>({
         return true;
       });
       if (!includesId) IdsList.push(id);
+      setSearch("");
       setSelectedIds(IdsList);
     },
     [selectedIds]

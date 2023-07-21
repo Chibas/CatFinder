@@ -1,19 +1,20 @@
 import { useCallback } from "react";
-import { useActions } from "../hooks/actions";
 import { useGetBreedsQuery } from "../store/thecat/thecat.api";
 import Dropdown from "./Dropdown";
 
-const BreedSelector = () => {
+type BreedSelectorProps = {
+  handleSelect(ids: string[]): void;
+};
+
+const BreedSelector = ({ handleSelect }: BreedSelectorProps) => {
   const {
     isLoading: isBreedsLoading,
     isError: isBreedsError,
     data: breeds,
   } = useGetBreedsQuery();
-  const { setBreedIds, setPage } = useActions();
 
   const handleSelectedChange = useCallback((ids: string[]) => {
-    setPage(0);
-    setBreedIds(ids);
+    handleSelect(ids);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
